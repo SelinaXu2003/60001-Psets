@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Aug  2 21:57:22 2020
+
+@author: selin
+"""
+
+
 # 6.0001 Problem Set 3
 #
 # The 6.0001 Word Game
@@ -16,7 +24,7 @@ CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
 HAND_SIZE = 7
 
 SCRABBLE_LETTER_VALUES = {
-    'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10
+    'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10, '*': 0
 }
 
 # -----------------------------------
@@ -96,19 +104,16 @@ def get_word_score(word, n):
     word = list(str.lower(word))
     score = []
     
-    for letter in word:
-        
-        score.append(SCRABBLE_LETTER_VALUES.get(letter))
-        
-    letter_score = sum(score)
+    for let in word:
+        score.append(SCRABBLE_LETTER_VALUES[let])
     
+    letter_points = sum(score)
     word_score = 7*len(word) - 3*(n - len(word))
     
     if word_score < 1:
-        
         word_score = 1
-
-    return letter_score*word_score
+    
+    return letter_points*word_score
 
 #
 # Make sure you understand how this function works and what it does!
@@ -214,66 +219,35 @@ def is_valid_word(word, hand, word_list):
     """
 
     test = []
-    
-    
     test_list = []
-   
     word = str.lower(word)
-    
     word_copy = word
-    
-    if "*" not in word:
-    
+    if '*' not in word:
         for i in range(len(word)):
-        
             if word[i] in hand and hand[word[i]] >= word.count(word[i]) and word in word_list:
-            
                 test.append(1)
-            
             else:
-           
                 test.append(0)
-            
-            if sum(test) == len(word):
-            
-                return True
-            
-            else:
-            
-                return False
-    
-    elif "*" in word_copy:
-    
+        if sum(test) == len(word):
+            return True
+        else:
+            return False
+    elif '*' in word_copy:
         for i in range(len(VOWELS)):
-      
             if word_copy.replace('*', VOWELS[i]) in word_list:
-            
                 test_list.append(1)
-                
                 for j in range(len(word_copy)):
-                
                     if word_copy[j] in hand and hand[word_copy[j]] >= word_copy.count(word_copy[j]):
-                    
                         test.append(1)
-                   
                     else:
-                    
                         test.append(0)
-                
                 if sum(test) == len(word_copy):
-                
                     return True
-                
                 else:
-                
                     return False
-            
             else:
-            
                 test_list.append(0)
-
         if sum(test_list) != len(VOWELS):
-
             return False
 
         
@@ -376,15 +350,15 @@ def play_hand(hand, word_list):
 
         else:
 
-            if is_valid_word(user_input, hand, word_list):
+            if is_valid_word(user_input, hand, word_list) == True:
 
-                current_word_score = get_word_score(user_input, calculate_handlen(hand))
+                current_score = get_word_score(user_input, calculate_handlen(hand))
 
-                total_score = current_word_score + total_score
+                total_score += current_score
 
                 hand = update_hand(hand, user_input)
 
-                print('"%s"' % user_input, 'earned', current_word_score, 'points. Total:', total_score, 'points')
+                print('"%s"' % user_input, 'earned', current_score, 'points. Total:', total_score, 'points')
 
             else:
 
@@ -430,52 +404,31 @@ def substitute_hand(hand, letter):
     """
     
     if letter in hand:
-        
         new_hand = hand.copy()
-        
         letter = letter.lower()
-        
         num_letters = new_hand[letter]
-        
         num_vow = math.ceil(num_letters / 3)
-        
         del new_hand[letter]
-        
         while sum(new_hand.values()) < sum(hand.values()):
-            
             for i in range(num_vow):
-                
                 x = random.choice(VOWELS)
-                
                 if x not in hand:
-                    
                     new_hand[x] = new_hand.get(x, 0) + 1
-                    
             if sum(new_hand.values()) >= sum(hand.values()):
-                
                 break
-            
             for i in range(num_vow, num_letters):
-                
                 x = random.choice(CONSONANTS)
-                
                 if x not in hand:
-                    
                     new_hand[x] = new_hand.get(x, 0) + 1
-                    
         return new_hand
-    
     else:
-        
         return hand
-       
-    
+
+
 def play_game(word_list):
     """
     Allow the user to play a series of hands
-
     * Asks the user to input a total number of hands
-
     * Accumulates the score for each hand into a total score for the 
       entire series
  
@@ -484,7 +437,6 @@ def play_game(word_list):
       desired letter. This can only be done once during the game. Once the
       substitue option is used, the user should not be asked if they want to
       substitute letters in the future.
-
     * For each hand, ask the user if they would like to replay the hand.
       If the user inputs 'yes', they will replay the hand and keep 
       the better of the two scores for that hand.  This can only be done once 
@@ -492,101 +444,55 @@ def play_game(word_list):
       be asked if they want to replay future hands. Replaying the hand does
       not count as one of the total number of hands the user initially
       wanted to play.
-
             * Note: if you replay a hand, you do not get the option to substitute
                     a letter - you must play whatever hand you just had.
       
     * Returns the total score for the series of hands
-
     word_list: list of lowercase strings
     """
-    
     sub_count = 1
-
     replay_count = 1
-
     num_hands = int(input('Enter total number of hands: '))
-
-    Total = 0
-
+    TOTAL = 0
     while num_hands >= 1:
-
         new_score = 0
-
         hand = deal_hand(HAND_SIZE)
-
         while sub_count >= 1:
-
             print()
-
             print('Current hand:', end=' '), display_hand(hand)
-
             sub_option = input('Would you like to substitute a letter: ')
-
             if sub_option.lower() == 'yes':
-
                 letter = input('Which letter would you like to replace: ')
-
                 hand = substitute_hand(hand, letter)
-
                 sub_count = sub_count - 1
-
                 break
-
             elif sub_option.lower() == 'no':
-
                 break
-
         
-
         score = play_hand(hand, word_list)
 
-
-
         while replay_count >= 1:
-
             print('----------')
-
             replay_option = input('Would you like to replay the hand: ')
-
             if replay_option.lower() == 'yes':
-
                 while sub_count >= 1:
-
                     sub_option = input('Would you like to substitute a letter: ')
-
                     if sub_option.lower() == 'yes':
-
                         letter = input('Which letter would you like to replace: ')
-
                         hand = substitute_hand(hand, letter)
-
                         sub_count = sub_count - 1
-
                         break
-
                     elif sub_option.lower() == 'no':
-
                         break
-
                 new_score = play_hand(hand, word_list)
-
                 replay_count = replay_count - 1
-
             elif replay_option == 'no':
-
                 break
 
-        Total = max(score, new_score) + Total
-
+        TOTAL = max(score, new_score) + TOTAL
         num_hands = num_hands - 1
-
     print('----------')
-
-    print('Total score over all hands: ', Total)
-
-    
-
+    print('Total score over all hands: ', TOTAL)
 
 
 #
